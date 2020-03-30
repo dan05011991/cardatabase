@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "car-database.fullname" . }}
+  labels:
+    app: {{ template "car-database.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "car-database.name" . }}
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: {{ template "car-database.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          - /bin/registry
+          - serve
+          - /etc/docker/registry/config.yml
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: "{{ template "car-database.fullname" . }}-config"
+              mountPath: "/etc/docker/registry"
+      volumes:
+        - name: {{ template "car-database.fullname" . }}-config
+          configMap:
+            name: {{ template "car-database.fullname" . }}-config
