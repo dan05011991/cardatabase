@@ -11,6 +11,6 @@ image:
 service:
   name: cardatabase
   type: NodePort
-  port: 8081
+  port: 8080
 
 properties: {}
