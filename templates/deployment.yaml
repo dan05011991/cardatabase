@@ -26,10 +26,6 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-          - /bin/registry
-          - serve
-          - /etc/docker/registry/config.yml
           ports:
             - containerPort: 8080
           volumeMounts:
